@@ -11,7 +11,8 @@ public class DnsClient {
 	private static String AU_ROOT_IP;	//!!!ROOT IP Adress
 //	private static final String AU_ROOT_IP = "8.8.8.8";
 	private static int nsCount = 1;								//Keeps track of the number of server replys it has encountered
-
+    private static int MAX; 
+    private static int TYPE;
 
 
 	public static void main(String args[]) throws Exception{
@@ -25,8 +26,10 @@ public class DnsClient {
 		DEFAULT_PORT=a.getPort();
 		String askfor=a.getName();
 		AU_ROOT_IP=a.getDnsserver();
+		MAX=a.getMaxretries();
+		TYPE= a.getType();
 		System.out.println("DnsClient sending request for: "+askfor);
-		resolveDomain(askfor,true);
+		resolveDomain(askfor,true, MAX,TYPE);
 		
 		//resolveDomain(args[0],true);
 		//GAME OVER.. 
@@ -41,7 +44,7 @@ public class DnsClient {
 	 * @param printFound Sets weather it should print if the domain IP has been found.
 	 * @return String A string IP address.
 	 */  
-	private static String resolveDomain(String askfor, boolean printFound) throws Exception{
+	private static String resolveDomain(String askfor, boolean printFound, int MAXtemp, int TYPEtemp) throws Exception{
 		
 		String at = AU_ROOT_IP;	//Holds the IP to ask next
 		boolean found =  false; 
@@ -54,7 +57,8 @@ public class DnsClient {
 		
 			//CHECKS FOR ERRORS : SOA, Error Codes, NULL Return (Timeout)
 			
-			newResponse = sendPak(askfor,at); 
+			newResponse = sendPak(askfor,at,TYPEtemp); 
+			long startTime = System.nanoTime();//at the beginning for store the start time in starttime
 			//christine
 		/*	if(newResponse == null)
 				{
@@ -64,8 +68,8 @@ public class DnsClient {
 				//christine
 			while(newResponse == null)
 			{
-				newResponse = sendPak(askfor,at); 
-				if(nsCount>3)
+				newResponse = sendPak(askfor,at,TYPEtemp); 
+				if(nsCount==MAXtemp)
 				{
 					System.out.println("Response not received after [time] seconds "+nsCount+" retries");
 					System.exit(0); 
@@ -102,9 +106,9 @@ public class DnsClient {
 					{		//1st rec
 						//SOA Rec == NXDOMAIN
 */
-						if(nsCount>3)
+						if(nsCount==MAXtemp)
 						{
-						System.out.println("Response not received after [time] seconds "+nsCount+" retries");
+						System.out.println("Response not received after  "+nsCount+" retries");
 							
 						System.exit(0);//christine
 						}
@@ -128,9 +132,9 @@ public class DnsClient {
 			if(response.noAnswers()==0){
 				//Gets the next IP to query. 
 				
-				if(nsCount>3)
+				if(nsCount==MAXtemp)
 				{
-					System.out.println("Response not received after [time] seconds "+nsCount+" retries");
+					System.out.println("Response not received after "+nsCount+" retries");
 					return NO_IP_FOUND;//christine
 				}
 			//	return NO_IP_FOUND;
@@ -140,7 +144,7 @@ public class DnsClient {
 				//Loops though answers to find if A or CNAME
 			for(int i=0;i<response.noAnswers();i++){
 				if(response.getRRAns(i).getType()==DnsRR.TYPE_CNAME_RECORD){	//IF CNAME ANSWER
-					System.out.println("Response received after [time] seconds "+nsCount+" retries");
+					System.out.println("Response received after " + (System.nanoTime() - startTime)/Math.pow(10, 9) + " seconds "+nsCount+" retries");
 					
 					System.out.print("CNAME for " + askfor);
 				
@@ -150,7 +154,8 @@ public class DnsClient {
 					System.out.println(" is " + askfor);
 				} else if(response.getRRAns(i).getType()==DnsRR.TYPE_A_RECORD){	//If Type A (IP) Answer 
 					//IP FOUND!!! WHOOO RAHHH!!!
-					System.out.println("Response received after [time] seconds "+nsCount+" retries");
+					System.out.println("Response received after " + (System.nanoTime() - startTime)/Math.pow(10, 9) + " seconds "+nsCount+" retries");
+					
 					
 					if(printFound) System.out.println(askfor + " = " + response.getRRAns(i).getStringData());
 										
@@ -232,7 +237,7 @@ public class DnsClient {
 	 * @param ipAddr The IP adress to send query.
 	 * @return DNS_packet A dns packet reply.
 	 */	
-	private static DnsPacket sendPak(String domainName, String ipAddr) throws Exception{
+	private static DnsPacket sendPak(String domainName, String ipAddr,int TYPEtemp) throws Exception{
 		//christine: for requirements in slides
 		System.out.println("Server:  " + ipAddr);
 		//UDP Socket Open
@@ -255,7 +260,7 @@ public class DnsClient {
 		 IP[3]=  (byte) ((0xFF) & i4);
 		 
 		InetAddress IPAddress = InetAddress.getByAddress(IP);
-		DnsPacket out = new DnsPacket(domainName);
+		DnsPacket out = new DnsPacket(domainName,TYPEtemp);
 		DatagramPacket sendPacket = new DatagramPacket(out.packet(), out.packet().length, IPAddress, DEFAULT_PORT);  //!!! 53 is the default port
 		clientSocket.send(sendPacket);
 		// christine try get byaddress
@@ -269,10 +274,20 @@ public class DnsClient {
 		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 		try{	//Try receive the data
 			clientSocket.receive(receivePacket);
-		}catch(InterruptedIOException iioexception){		
+		/*}catch(InterruptedIOException iioexception){		
 			clientSocket.close();
 			return null;	//Timeout
+		}*///christine for time out
+		//Timeout
+		}catch (SocketTimeoutException s) {
+			
+		
+			clientSocket.close();
+			return null;
 		}
+				
+		
+        
 		DnsPacket in = new DnsPacket(receiveData, domainName);
 		
 		

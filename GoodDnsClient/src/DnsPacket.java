@@ -37,7 +37,7 @@ public class DnsPacket {
 //Methods
 	
 	 //!!!constructs the header data of a DNS query and sets the domainName to query
-	public DnsPacket(String domainName){
+	public DnsPacket(String domainName, int TYPEtemp){
 	//private void createQuery(String domainName){
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!just create all before RR section end ARCOUNT
 		//Populate header
@@ -157,7 +157,18 @@ public class DnsPacket {
 		//!!! Need to consider other types NX, and MX queries.
 		//christine change domain.leng...to domain_lenght
 		data[14 + domain_length] = 0x00; 
-		data[15 + domain_length] = 0x01;  //Always type A
+		if (TYPEtemp == 1)
+		{
+			data[15 + domain_length] = 0x01; 	
+		}else if(TYPEtemp == 2)
+		{
+			data[15 + domain_length] = 0x02; 
+		}
+		else if(TYPEtemp == 15)
+		{
+			data[15 + domain_length] = 0x0f; 
+		}
+		 //Always type A
 		// christine: 16-bit code specifying the class of the query
 		// 0x01 representing an Internet address
 		data[16 + domain_length] = 0x00; 
