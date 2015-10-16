@@ -3,29 +3,35 @@ import java.net.*;
 public class DnsClient {
 
 	
-//Field asdfasdfasdfasdfsd
-//jdjdjdjjddj
+//Field
 	private static final String NO_IP_FOUND = "";				//Value for returning no ip.
 	private static final int DEFAULT_PAK_SIZE = 1052;			//Max Packet Size
-	private static final int REPLY_TIMEOUT = 5000;				//!!!Timeout after 4 sec
-	private static final int DEFAULT_PORT=53;					//Default Port is 53
-//	private static final String AU_ROOT_IP = "132.206.85.18";	//!!!ROOT IP Adress
-	private static final String AU_ROOT_IP = "8.8.8.8";
+	private static int REPLY_TIMEOUT;				//!!!Timeout after 4 sec
+	private static int DEFAULT_PORT;					//Default Port is 53
+	private static String AU_ROOT_IP;	//!!!ROOT IP Adress
+//	private static final String AU_ROOT_IP = "8.8.8.8";
 	private static int nsCount = 1;								//Keeps track of the number of server replys it has encountered
 
 
 
-
 	public static void main(String args[]) throws Exception{
-		String askfor = "www.baidu.ca";		//WORKS: +FIX_TEST+ arc.gov.au NS doe not reply, needs to try next ns (Works)
+		//String askfor = "www.baidu.ca";		//WORKS: +FIX_TEST+ arc.gov.au NS doe not reply, needs to try next ns (Works)
 		//String askfor = "www.plan-international.gov";
-		//christine: for requirements in slides
-		
+
+
+		Input a=new Input(args);
+
+		REPLY_TIMEOUT=a.getTimeout();
+		DEFAULT_PORT=a.getPort();
+		String askfor=a.getName();
+		AU_ROOT_IP=a.getDnsserver();
 		System.out.println("DnsClient sending request for: "+askfor);
 		resolveDomain(askfor,true);
-
+		
 		//resolveDomain(args[0],true);
 		//GAME OVER.. 
+		
+		
 	}
 	
 	
