@@ -4,6 +4,7 @@ public class DnsClient {
 
 	
 //Field asdfasdfasdfasdfsd
+//jdjdjdjjddj
 	private static final String NO_IP_FOUND = "";				//Value for returning no ip.
 	private static final int DEFAULT_PAK_SIZE = 1052;			//Max Packet Size
 	private static final int REPLY_TIMEOUT = 5000;				//!!!Timeout after 4 sec
