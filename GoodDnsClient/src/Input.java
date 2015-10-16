@@ -3,7 +3,7 @@ public class Input {
 
 	public String[] temp;
 	public int timeout=4000; 	//!!!Timeout after 4 sec
-	public int maxretries;
+	public int maxretries = 3;
 	public int port=53;			//Default Port is 53;
 	public String Dnsserver;
 	public int type=1;
