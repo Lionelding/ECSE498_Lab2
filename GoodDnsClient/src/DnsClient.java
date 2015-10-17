@@ -73,8 +73,9 @@ public class DnsClient {
 				{
 					System.out.println("Response not received after [time] seconds "+nsCount+" retries");
 					System.exit(0); 
+					return NO_IP_FOUND;
 				}
-				return NO_IP_FOUND;
+				
 			}
 			
 			if(newResponse != null &&( newResponse.errorCode() == 1
@@ -281,7 +282,7 @@ public class DnsClient {
 		//Timeout
 		}catch (SocketTimeoutException s) {
 			
-		
+			nsCount++;
 			clientSocket.close();
 			return null;
 		}
