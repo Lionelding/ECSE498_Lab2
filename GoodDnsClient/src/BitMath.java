@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
  * This is a helper function shared by all other classes. It contains common shared bit,byte conversion functions.
  */  
 public class BitMath {
-	public static final int EMPTY_BYTE = 0x00;
 	
 	/**
 	 * This method Converts 4 bytes into an integer  signed integer value.
@@ -25,7 +24,7 @@ public class BitMath {
         return value;
     }*///christine version:need change name
 	
-	public static int byteToInt(byte[] bytes, int offset) {
+	public static int byte4tointeger(byte[] bytes, int offset) {
 		  int a = 0;
 
 
@@ -78,7 +77,7 @@ public class BitMath {
         return retVal;
     }
     *///christine need change name
-    public static int byteToShort(byte[] bytes, int offset){
+    public static int byte2tointeger(byte[] bytes, int offset){
     	
 	       int a= (bytes[offset+0]<< 8)&0x0000ff00|
 	       (bytes[offset+1]<< 0)&0x000000ff;
@@ -116,7 +115,7 @@ public class BitMath {
 	
     */// christine:
     
-    public static byte bitsetToByte(BitSet bits) {
+    public static byte bitstobyte(BitSet bits) {
     	byte[] a = new byte[1];
     	
     for(int i = 0; i<bits.length(); i++)
@@ -142,7 +141,7 @@ public class BitMath {
 	*/
     
     
-    	  public static int UnsignedByteToInt(byte b) {
+    	  public static int onebytetointeger(byte b) {
     	    return (int) b & 0xFF;// christine: cuz when byte to int: always think it is signed, so need to make it positive
     	  }
 	/**
@@ -171,7 +170,7 @@ public class BitMath {
 	/// 3www3qwe2ca meme length vs .www.que.ca then substring(1) is to print from .
 				
 	}*///christine:
-    		public static String convStops(String nameWithFrontSeqNum){
+    		public static String addrseqtodots(String nameWithFrontSeqNum){
   		byte[] out = new byte[nameWithFrontSeqNum.length()];
   				
   		for(int i=0;i<nameWithFrontSeqNum.length();i++){
@@ -217,13 +216,13 @@ public class BitMath {
 	 * @param recData A byte array which holds 4 bytes. It will only read the first 4 bytes starting from 0
 	 * @return String Returns String IP
 	 */  
-	public static String bytesToIPString (byte[] recData){
-		String out = "";
+	public static String bytesTowholeIPString (byte[] recData){
+		String wholeIPwithdots = "";
 		
-int number0 =  UnsignedByteToInt(recData[0]);
-int number1 =  UnsignedByteToInt(recData[1]);
-int number2 =  UnsignedByteToInt(recData[2]);
-int number3 =  UnsignedByteToInt(recData[3]);
+int number0 =  onebytetointeger(recData[0]);
+int number1 =  onebytetointeger(recData[1]);
+int number2 =  onebytetointeger(recData[2]);
+int number3 =  onebytetointeger(recData[3]);
 
     	
     	String string0 = String.valueOf(number0);
@@ -232,9 +231,9 @@ int number3 =  UnsignedByteToInt(recData[3]);
     	String string3 = String.valueOf(number3);
     	
 		
-		out = string0 + "."+string1+"."+string2+ "."+ string3;
+    	wholeIPwithdots = string0 + "."+string1+"."+string2+ "."+ string3;
 		
-		return out;
+		return wholeIPwithdots;
 	}
 	
 	/**
