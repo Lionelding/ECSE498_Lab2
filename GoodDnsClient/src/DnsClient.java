@@ -5,8 +5,8 @@ public class DnsClient {
 	
 //Field
 	//private static final String null = "";				//Value for returning no ip.
-	private static final int DEFAULT_PAK_SIZE = 1052;			//Max Packet Size
-	private static int REPLY_TIMEOUT;				//!!!Timeout after 4 sec
+	private static final int DEFAULT_PACKETSIZE = 512;			//Max Packet Size
+	private static int RESET_TIMEOUT;				//!!!Timeout after 4 sec
 	private static int DEFAULT_PORT;					//Default Port is 53
 	private static String ASKED_SERVER;	//!!!ROOT IP Adress
 //	private static final String AU_ROOT_IP = "8.8.8.8";
@@ -22,14 +22,14 @@ public class DnsClient {
 
 		Input a=new Input(args);
 
-		REPLY_TIMEOUT=a.getTimeout();
+		RESET_TIMEOUT=a.getTimeout();
 		DEFAULT_PORT=a.getPort();
 		String AskedDomainName=a.getName();
 		ASKED_SERVER=a.getDnsserver();
 		MAX=a.getMaxretries();
 		TYPE= a.getType();
 		System.out.println("DnsClient sending requestQue for: "+AskedDomainName);
-		QueryDecoding(AskedDomainName,true, MAX,TYPE);
+		QueryandDecoding(AskedDomainName,true, MAX,TYPE);
 		
 		//resolveDomain(args[0],true);
 		//GAME OVER.. 
@@ -44,9 +44,9 @@ public class DnsClient {
 	 * @param printFound Sets weather it should print if the domain IP has been found.
 	 * @return String A string IP address.
 	 */  
-	private static String QueryDecoding(String AskedDomainName, boolean printFound, int MAXtemp, int TYPEtemp) throws Exception{
+	private static String QueryandDecoding(String AskedDomainName, boolean printFound, int MAXtemp, int TYPEtemp) throws Exception{
 		
-		String at = ASKED_SERVER;	//Holds the IP to ask next
+		String AskedServer = ASKED_SERVER;	//Holds the IP to ask next
 		boolean Tries =  false; 
 		DnsPacket Validanswer = new DnsPacket();
 		DnsPacket Getananswer = new DnsPacket();
@@ -57,7 +57,7 @@ public class DnsClient {
 		
 			//CHECKS FOR ERRORS : SOA, Error Codes, NULL Return (Timeout)
 			
-			Getananswer = TrySendOnce(AskedDomainName,at,TYPEtemp); 
+			Getananswer = TrySendOnce(AskedDomainName,AskedServer,TYPEtemp); 
 			//long startTime = System.nanoTime();//at the beginning for store the start time in starttime
 			//christine
 		/*	if(Getananswer == null)
@@ -68,7 +68,7 @@ public class DnsClient {
 				//christine
 			while(Getananswer == null)
 			{
-				Getananswer = TrySendOnce(AskedDomainName,at,TYPEtemp); 
+				Getananswer = TrySendOnce(AskedDomainName,AskedServer,TYPEtemp); 
 				if(TriesCount==MAXtemp)
 				{
 					System.out.println("NOTFOUND");
@@ -78,19 +78,19 @@ public class DnsClient {
 				
 			}
 			
-			if(Getananswer != null &&( Getananswer.errorCode() == 1
-					|| Getananswer.errorCode() == 2
-					|| Getananswer.errorCode() == 3
-					|| Getananswer.errorCode() == 4
-					|| Getananswer.errorCode() == 5))
+			if(Getananswer != null &&( Getananswer.RCODEreader() == 1
+					|| Getananswer.RCODEreader() == 2
+					|| Getananswer.RCODEreader() == 3
+					|| Getananswer.RCODEreader() == 4
+					|| Getananswer.RCODEreader() == 5))
 				{
 				
 					
 			
-			if(Getananswer != null && Getananswer.noAuthoritive()>0 && (Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_NS_RECORD)&&
-					(Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_MX_RECORD)&&
-					Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_CNAME_RECORD&&
-					(Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_A_RECORD))
+			if(Getananswer != null && Getananswer.numberofRRinauthor()>0 && (Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_NS_RECORD)&&
+					(Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_MX_RECORD)&&
+					Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_CNAME_RECORD&&
+					(Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_A_RECORD))
 					
 				{
 				
@@ -131,7 +131,7 @@ public class DnsClient {
 			/*System.out.println(response.isResponse());*/
 			//christine debug purpose
 			//System.out.println();
-			if(Validanswer.noAnswers()==0){
+			if(Validanswer.numberofRRinanwers()==0){
 				//Gets the next IP to query. 
 				
 				if(TriesCount==MAXtemp)
@@ -144,20 +144,8 @@ public class DnsClient {
 			//	return null;
 			//christine
 				//Loops though answers to find if A or CNAME
-			for(int i=0;i<Validanswer.noAnswers();i++){
-				if(Validanswer.getRRAns(i).getType()==DnsRR.TYPE_CNAME_RECORD){	//IF CNAME ANSWER
-					return null; 
-					
-				} else if(Validanswer.getRRAns(i).getType()==DnsRR.TYPE_A_RECORD){	//If Type A (IP) Answer 
-					return null; 
-				}
-				else if(Validanswer.getRRAns(i).getType()==DnsRR.TYPE_MX_RECORD){	//If Type A (IP) Answer 
-				
-					return null; //RETURN IP FOUND
-				}
-				else if(Validanswer.getRRAns(i).getType()==DnsRR.TYPE_NS_RECORD){	//If Type A (IP) Answer 
-					return null; 
-				}
+			for(int i=0;i<Validanswer.numberofRRinanwers();i++){			
+					return null; 				
 			}
 			
 		
@@ -270,20 +258,20 @@ public class DnsClient {
 		 IP[3]=  (byte) ((0xFF) & i4);
 		 
 		InetAddress IPAddress = InetAddress.getByAddress(IP);
-		DnsPacket out = new DnsPacket(AskedDomainName,TYPEtemp);
-		DatagramPacket sendPacket = new DatagramPacket(out.packet(), out.packet().length, IPAddress, DEFAULT_PORT);  //!!! 53 is the default port
-		clientSocket.send(sendPacket);
+		DnsPacket outpacket = new DnsPacket(AskedDomainName,TYPEtemp);
+		DatagramPacket PackettoSend = new DatagramPacket(outpacket.Getwholedata(), outpacket.Getwholedata().length, IPAddress, DEFAULT_PORT);  //!!! 53 is the default port
+		clientSocket.send(PackettoSend);
 		// christine try get byaddress
 		
 		
 
 	
 		//Receives DNS packet
-		byte[] receiveData = new byte[DEFAULT_PAK_SIZE];			//!!! 1024 and 512? 
-		clientSocket.setSoTimeout(REPLY_TIMEOUT);	//!!! Should be a variable. If no data arrives within certain time period, throw it in the exception 
-		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+		byte[] receiveData = new byte[DEFAULT_PACKETSIZE];			//!!! 1024 and 512? 
+		clientSocket.setSoTimeout(RESET_TIMEOUT);	//!!! Should be a variable. If no data arrives within certain time period, throw it in the exception 
+		DatagramPacket receivePackettoReceive = new DatagramPacket(receiveData, receiveData.length);
 		try{	//Try receive the data
-			clientSocket.receive(receivePacket);
+			clientSocket.receive(receivePackettoReceive);
 		/*}catch(InterruptedIOException iioexception){		
 			clientSocket.close();
 			return null;	//Timeout
@@ -298,7 +286,7 @@ public class DnsClient {
 				
 		
         
-		DnsPacket in = new DnsPacket(receiveData, AskedDomainName, startTime, TriesCount);
+		DnsPacket inPacket = new DnsPacket(receiveData, AskedDomainName, startTime, TriesCount);
 		
 		
 		//!!!Prints only if it receives a reply
@@ -309,7 +297,7 @@ public class DnsClient {
 		//UDP Socket Close
 		clientSocket.close();
 		
-		return in;
+		return inPacket;
 	}
 
 	

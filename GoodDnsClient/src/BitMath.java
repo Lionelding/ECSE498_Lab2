@@ -1,12 +1,6 @@
-
-import java.math.BigInteger;
 import java.util.BitSet;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
-/**
- * This is a helper function shared by all other classes. It contains common shared bit,byte conversion functions.
- */  
+// This class provides all the data type and data handling modules that allow easy data manipulation in other classes  
 public class BitMath {
 	
 	/**
@@ -24,16 +18,16 @@ public class BitMath {
         return value;
     }*///christine version:need change name
 	
-	public static int byte4tointeger(byte[] bytes, int offset) {
-		  int a = 0;
+// This is used to convert 4 bytes in sequence into an integer number
+public static int byte4tointeger(byte[] bytes, int index) {
+	int a = 0;
 
-
-		  a= (bytes[offset+0]<<24)&0xff000000|
-	       (bytes[offset+1]<<16)&0x00ff0000|
-	       (bytes[offset+2]<< 8)&0x0000ff00|
-	       (bytes[offset+3]<< 0)&0x000000ff;
+	a= (bytes[index+0]<<24)&0xff000000|
+	       (bytes[index+1]<<16)&0x00ff0000|
+	       (bytes[index+2]<< 8)&0x0000ff00|
+	       (bytes[index+3]<< 0)&0x000000ff;
 		  
-		   return a;
+	return a;
 	} 
 		
 	
@@ -50,10 +44,12 @@ public class BitMath {
 	    }  
 	    return bits;  
 	}  	*/    // christine: internet: static BitSet valueOf(byte[] bytes) 
-	// Returns a new bit set containing all the bits in the given byte array. 
-    public static BitSet byteToBitset(byte b) {  
-    	BitSet set = BitSet.valueOf(new byte[] { b });
-	    return set;  
+	// Returns a new bit set containing all the bits in the given byte array.
+
+// This allows to convert a single byte to a 8bits bitset
+public static BitSet byteToBitset(byte b) {  
+	BitSet set = BitSet.valueOf(new byte[] { b });
+	return set;  
 	}  	    
     
     
@@ -77,13 +73,14 @@ public class BitMath {
         return retVal;
     }
     *///christine need change name
-    public static int byte2tointeger(byte[] bytes, int offset){
-    	
-	       int a= (bytes[offset+0]<< 8)&0x0000ff00|
-	       (bytes[offset+1]<< 0)&0x000000ff;
-		  
-		   return a;
-    }
+// This allows to convert 2 bytes in sequence into a single integer number
+public static int byte2tointeger(byte[] bytes, int offset){
+	
+    int a= (bytes[offset+0]<< 8)&0x0000ff00|
+    (bytes[offset+1]<< 0)&0x000000ff;
+	  
+	   return a;
+}
     
   
 	/**
@@ -114,15 +111,15 @@ public class BitMath {
     }
 	
     */// christine:
-    
-    public static byte bitstobyte(BitSet bits) {
-    	byte[] a = new byte[1];
+// This allows to convert a single bitset (8 bits) into a single byte
+public static byte bitstobyte(BitSet bits) {
+	byte[] a = new byte[1];
     	
     for(int i = 0; i<bits.length(); i++)
-    {
+    	{
         if(bits.get(i) == true)
             a[0] |= (1 <<i) ;            
-    }
+    	}
     return a[0];
     }
 
@@ -140,10 +137,10 @@ public class BitMath {
     }
 	*/
     
-    
-    	  public static int onebytetointeger(byte b) {
-    	    return (int) b & 0xFF;// christine: cuz when byte to int: always think it is signed, so need to make it positive
-    	  }
+// This allows to convert one single byte into an integer number 
+public static int onebytetointeger(byte b) {
+	return (int) b & 0xFF;// christine: cuz when byte to int: always think it is signed, so need to make it positive
+	}
 	/**
 	 * This function will remove all pre-appended values which count label characters into domain separators '.'
 	 * @param in String data
@@ -170,23 +167,27 @@ public class BitMath {
 	/// 3www3qwe2ca meme length vs .www.que.ca then substring(1) is to print from .
 				
 	}*///christine:
-    		public static String addrseqtodots(String nameWithFrontSeqNum){
-  		byte[] out = new byte[nameWithFrontSeqNum.length()];
+
+// This allows to take a string that presents a domain name as digit/letters/digit/letters...format and convert into a string in letter/dots/letter/dots...format
+public static String addrseqtodots(String nameWithFrontSeqNum){
+	byte[] out = new byte[nameWithFrontSeqNum.length()];
   				
-  		for(int i=0;i<nameWithFrontSeqNum.length();i++){
-  			//Checks if its a label element
-  			if((Character.isDigit(nameWithFrontSeqNum.charAt(i))) || 
+	for(int i=0;i<nameWithFrontSeqNum.length();i++){
+  		//if it is everything that can be present in a domain name (other than dots)
+		if((Character.isDigit(nameWithFrontSeqNum.charAt(i))) || 
   			(Character.isLetter(nameWithFrontSeqNum.charAt(i)))||
   			nameWithFrontSeqNum.charAt(i)=='?'  || 
   			nameWithFrontSeqNum.charAt(i)=='-'||
   			nameWithFrontSeqNum.charAt(i)=='@'){
   				out[i] = (byte)(nameWithFrontSeqNum.charAt(i));
-  			} else { //Is label separator
+  			} 
+		//if it is a dot
+		else { 
   				out[i] = (byte)'.';
   			}
   		}
-  	
-  		String shortenString = new String(out).substring(1);// create a string by decoding byte and then just take the whole without the leftmost string
+  	// Print out the converted format but start by skipping the first substring because it is an extra and useless dot
+	String shortenString = new String(out).substring(1);// create a string by decoding byte and then just take the whole without the leftmost string
   	return shortenString;
   	}
     		
@@ -216,24 +217,23 @@ public class BitMath {
 	 * @param recData A byte array which holds 4 bytes. It will only read the first 4 bytes starting from 0
 	 * @return String Returns String IP
 	 */  
-	public static String bytesTowholeIPString (byte[] recData){
-		String wholeIPwithdots = "";
+// This allows to convert an array of data into a single string that indicates an IP address with dots format
+public static String bytesTowholeIPString (byte[] byteofpureIPdigits){
+	String wholeIPwithdots = "";
 		
-int number0 =  onebytetointeger(recData[0]);
-int number1 =  onebytetointeger(recData[1]);
-int number2 =  onebytetointeger(recData[2]);
-int number3 =  onebytetointeger(recData[3]);
+	int number0 =  onebytetointeger(byteofpureIPdigits[0]);
+	int number1 =  onebytetointeger(byteofpureIPdigits[1]);
+	int number2 =  onebytetointeger(byteofpureIPdigits[2]);
+	int number3 =  onebytetointeger(byteofpureIPdigits[3]);
 
+	String string0 = String.valueOf(number0);
+	String string1 = String.valueOf(number1);
+	String string2 = String.valueOf(number2);
+	String string3 = String.valueOf(number3);
     	
-    	String string0 = String.valueOf(number0);
-    	String string1 = String.valueOf(number1);
-    	String string2 = String.valueOf(number2);
-    	String string3 = String.valueOf(number3);
-    	
-		
-    	wholeIPwithdots = string0 + "."+string1+"."+string2+ "."+ string3;
-		
-		return wholeIPwithdots;
+	wholeIPwithdots = string0 + "."+string1+"."+string2+ "."+ string3;
+	
+	return wholeIPwithdots;
 	}
 	
 	/**
