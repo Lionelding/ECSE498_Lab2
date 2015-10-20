@@ -2,7 +2,7 @@
 public class Input {
 
 	public String[] temp;
-	public int timeout=4000; 	//!!!Timeout after 4 sec
+	public int timeout=4000; 	//Timeout after 4 sec
 	public int maxretries = 3;
 	public int port=53;			//Default Port is 53;
 	public String Dnsserver;
@@ -42,7 +42,7 @@ public class Input {
 	}
 	
 	public int getTimeout(){
-		System.out.println(timeout);
+		//System.out.println(timeout);
 		return timeout;
 	}
 	
@@ -50,19 +50,19 @@ public class Input {
 		return maxretries;
 	}
 	public int getPort(){
-		System.out.println(port);
+		//System.out.println(port);
 		return port;
 	}
 	public String getDnsserver(){
-		System.out.println(Dnsserver);
+		//System.out.println(Dnsserver);
 		return Dnsserver;
 	}
 	public String getName(){
-		System.out.print(askfor);
+		//System.out.print(askfor);
 		return askfor;
 	}
 	public int getType(){
-		System.out.println(type);
+		//System.out.println(type);
 		return type;
 	}
 	

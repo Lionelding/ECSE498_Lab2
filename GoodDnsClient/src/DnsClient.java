@@ -246,7 +246,7 @@ public class DnsClient {
 		String[] split = ipAddr.split("\\.");// 
 		 byte [] IP=new byte [4];
 		int i1,i2,i3,i4;
-		
+		//!!!split[i]???   
 		 i1= Integer.valueOf(split[0]).intValue();
 		 i2= Integer.valueOf(split[0]).intValue();
 		 i3= Integer.valueOf(split[0]).intValue();
