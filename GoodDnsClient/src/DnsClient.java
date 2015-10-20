@@ -1,27 +1,22 @@
-import java.io.InterruptedIOException;
 import java.net.*;
 public class DnsClient {
 
 	
 //Field
-	//private static final String null = "";				//Value for returning no ip.
 	private static final int DEFAULT_PACKETSIZE = 512;			//Max Packet Size
-	private static int RESET_TIMEOUT;				//!!!Timeout after 4 sec
-	private static int DEFAULT_PORT;					//Default Port is 53
-	private static String ASKED_SERVER;	//!!!ROOT IP Adress
-//	private static final String AU_ROOT_IP = "8.8.8.8";
-	private static int TriesCount = 1;								//Keeps track of the number of server replys it has encountered
-    private static int MAX; 
-    private static int TYPE;
+	private static int RESET_TIMEOUT;				// Store the timeout amount we allow to wait
+	private static int DEFAULT_PORT;					
+	private static String ASKED_SERVER;	// Store the dns server to which we send the request
+	private static int TriesCount = 1;	// Indicates the number of Tries
+    private static int MAX;            // Store the number of max tries permitted
+    private static int TYPE;           // Store the type of request
 
 
 	public static void main(String args[]) throws Exception{
-		//String AskedDomainName = "www.baidu.ca";		//WORKS: +FIX_TEST+ arc.gov.au NS doe not reply, needs to try next ns (Works)
-		//String AskedDomainName = "www.plan-international.gov";
 
-
+		//Import all of the arguments of the input into an Object called input
 		Input a=new Input(args);
-
+		//Get variables from the Object
 		RESET_TIMEOUT=a.getTimeout();
 		DEFAULT_PORT=a.getPort();
 		String AskedDomainName=a.getName();
@@ -29,43 +24,30 @@ public class DnsClient {
 		MAX=a.getMaxretries();
 		TYPE= a.getType();
 		System.out.println("DnsClient sending request for: "+AskedDomainName);
+		
+		//Executing a single method to send request and receive response
 		QueryandDecoding(AskedDomainName,true, MAX,TYPE);
 		
-		//resolveDomain(args[0],true);
-		//GAME OVER.. 
 		
-		
+		//End...
 	}
 	
 	
-	/**
-	 * This method returns a byte from a bitset.
-	 * @param AskedDomainName The domain name we are looking for.
-	 * @param printFound Sets weather it should print if the domain IP has been found.
-	 * @return String A string IP address.
-	 */  
+	//Send the request based on input, and decode the response
 	private static String QueryandDecoding(String AskedDomainName, boolean printFound, int MAXtemp, int TYPEtemp) throws Exception{
 		
-		String AskedServer = ASKED_SERVER;	//Holds the IP to ask next
+		String AskedServer = ASKED_SERVER;	
 		boolean Tries =  false; 
 		Packet Validanswer = new Packet();
 		Packet Getananswer = new Packet();
 		
-		
-		//!!!Keeps looping until a SOA is encountered, no response from all servers or hopefully it finds the IP
+		// infinite loop that allows to continue to send queries until maximum number of tries reached
 		while (!Tries){
-		
-			//CHECKS FOR ERRORS : SOA, Error Codes, NULL Return (Timeout)
-			
+	
+			//Put inputs into a packet and send it
 			Getananswer = TrySendOnce(AskedDomainName,AskedServer,TYPEtemp); 
-			//long startTime = System.nanoTime();//at the beginning for store the start time in starttime
-			//christine
-		/*	if(Getananswer == null)
-				{
-				System.out.println(AskedDomainName + " NOTFOUND");//christine
-				return null;
-				}*/
-				//christine
+			
+			//If there is no answer in the response until max retry reached
 			while(Getananswer == null)
 			{
 				Getananswer = TrySendOnce(AskedDomainName,AskedServer,TYPEtemp); 
@@ -74,66 +56,34 @@ public class DnsClient {
 					System.out.println("NOTFOUND");
 					System.exit(0); 
 					return null;
-				}
-				
+				}	
 			}
 			
-			if(Getananswer != null &&( Getananswer.RCODEreader() == 1
-					|| Getananswer.RCODEreader() == 2
-					|| Getananswer.RCODEreader() == 3
-					|| Getananswer.RCODEreader() == 4
-					|| Getananswer.RCODEreader() == 5))
-				{
-				
-					
+
 			
 			if(Getananswer != null && Getananswer.numberofRRinauthor()>0 && (Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_NS_RECORD)&&
 					(Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_MX_RECORD)&&
 					Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_CNAME_RECORD&&
 					(Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_A_RECORD))
 					
-				{
-				
-				//christine
-			//	System.out.println(Getananswer.isError());
-				//christine
-				//!!!Tests for SOA record
-				/*if(Getananswer != null && Getananswer.noAuthoritive()>0){
-					System.out.println("debug");*/
-					/*if((Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_CNAME_RECORD)&&
-							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_NS_RECORD)&&
-							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_MX_RECORD)&&
-							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_A_RECORD))
-					{		//1st rec
-						//SOA Rec == NXDOMAIN
-*/
+			{
 						if(TriesCount==MAXtemp)
 						{
 						System.out.println("NOTFOUND");
-							
-						System.exit(0);//christine
+						System.exit(0);
+						return null;
 						}
 					
-						return null;
-				}
+			}
 				
 					
-				}else{
+			else{
 					
-					Validanswer = Getananswer;	//If not null then has answers	=> Response Changed
-				}
+					Validanswer = Getananswer;
+			}
 			
 
-			//christine debug purposeExhausts all possible cases given a valid Reply
-			
-			//christine debug purpose
-			//System.out.println();
-			/*System.out.println(response.isResponse());*/
-			//christine debug purpose
-			//System.out.println();
-			if(Validanswer.numberofRRinanwers()==0){
-				//Gets the next IP to query. 
-				
+			if(Validanswer.numberofRRinanwers()==0){ 				
 				if(TriesCount==MAXtemp)
 				{
 					System.out.println("NOTFOUND");
