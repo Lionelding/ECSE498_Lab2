@@ -1,7 +1,7 @@
 import java.util.BitSet;
 
 // This class provides all the data type and data handling modules that allow easy data manipulation in other classes  
-public class BitMath {
+public class Conversion {
 	
 	/**
 	 * This method Converts 4 bytes into an integer  signed integer value.

@@ -48,8 +48,8 @@ public class DnsClient {
 		
 		String AskedServer = ASKED_SERVER;	//Holds the IP to ask next
 		boolean Tries =  false; 
-		DnsPacket Validanswer = new DnsPacket();
-		DnsPacket Getananswer = new DnsPacket();
+		Packet Validanswer = new Packet();
+		Packet Getananswer = new Packet();
 		
 		
 		//!!!Keeps looping until a SOA is encountered, no response from all servers or hopefully it finds the IP
@@ -87,10 +87,10 @@ public class DnsClient {
 				
 					
 			
-			if(Getananswer != null && Getananswer.numberofRRinauthor()>0 && (Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_NS_RECORD)&&
-					(Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_MX_RECORD)&&
-					Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_CNAME_RECORD&&
-					(Getananswer.GetrecordsInAuthoritative(0).getType()!=DnsRR.TYPE_A_RECORD))
+			if(Getananswer != null && Getananswer.numberofRRinauthor()>0 && (Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_NS_RECORD)&&
+					(Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_MX_RECORD)&&
+					Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_CNAME_RECORD&&
+					(Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_A_RECORD))
 					
 				{
 				
@@ -100,10 +100,10 @@ public class DnsClient {
 				//!!!Tests for SOA record
 				/*if(Getananswer != null && Getananswer.noAuthoritive()>0){
 					System.out.println("debug");*/
-					/*if((Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_CNAME_RECORD)&&
-							(Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_NS_RECORD)&&
-							(Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_MX_RECORD)&&
-							(Getananswer.getRRAuth(0).getType()!=DnsRR.TYPE_A_RECORD))
+					/*if((Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_CNAME_RECORD)&&
+							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_NS_RECORD)&&
+							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_MX_RECORD)&&
+							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_A_RECORD))
 					{		//1st rec
 						//SOA Rec == NXDOMAIN
 */
@@ -170,13 +170,13 @@ public class DnsClient {
 	 * @param response A dns_packet which holds the response.
 	 * @return String A string IP adress.
 	 */  
-	/*private static String getNextIP(DnsPacket response) throws Exception{
+	/*private static String getNextIP(Packet response) throws Exception{
 		String out = null;
 		
 		//Scans for Type A records (Makes sure it only returns valid IPs which have not been tried)
 		for(int i=0;i<response.noAditional();i++){
 			if(!response.getRRAdd(i).isTried() 
-			 && response.getRRAdd(i).getType() == DnsRR.TYPE_A_RECORD){	//TYPE A REC not tried
+			 && response.getRRAdd(i).getType() == RRecord.TYPE_A_RECORD){	//TYPE A REC not tried
 				out = response.getRRAdd(i).getStringData(); 	//Gets the IP
 				response.getRRAdd(i).setTried();				//Sets the IP as used
 				
@@ -222,7 +222,7 @@ public class DnsClient {
 	 * @param ipAddr The IP adress to send query.
 	 * @return DNS_packet A dns packet reply.
 	 */	
-	private static DnsPacket TrySendOnce(String AskedDomainName, String ipAddr,int TYPEtemp) throws Exception{
+	private static Packet TrySendOnce(String AskedDomainName, String ipAddr,int TYPEtemp) throws Exception{
 		//christine: for requirements in slides
 		long startTime = System.nanoTime();
 		System.out.println("Server:  " + ipAddr);
@@ -258,7 +258,7 @@ public class DnsClient {
 		 IP[3]=  (byte) ((0xFF) & i4);
 		 
 		InetAddress IPAddress = InetAddress.getByAddress(IP);
-		DnsPacket outpacket = new DnsPacket(AskedDomainName,TYPEtemp);
+		Packet outpacket = new Packet(AskedDomainName,TYPEtemp);
 		DatagramPacket PackettoSend = new DatagramPacket(outpacket.Getwholedata(), outpacket.Getwholedata().length, IPAddress, DEFAULT_PORT);  //!!! 53 is the default port
 		clientSocket.send(PackettoSend);
 		// christine try get byaddress
@@ -286,7 +286,7 @@ public class DnsClient {
 				
 		
         
-		DnsPacket inPacket = new DnsPacket(receiveData, AskedDomainName, startTime, TriesCount);
+		Packet inPacket = new Packet(receiveData, AskedDomainName, startTime, TriesCount);
 		
 		
 		//!!!Prints only if it receives a reply

@@ -1,5 +1,5 @@
 
-public class DnsRR {
+public class RRecord {
 
 
 	
@@ -58,7 +58,7 @@ public class DnsRR {
 	}*/
 	
 	// Function to make an instance of record (type MX or NS or CNAME)
-	public DnsRR(int rType, int rClass, int rTTL, String recData, String rName)
+	public RRecord(int rType, int rClass, int rTTL, String recData, String rName)
 		{
 		this.recordtype = rType;
 		this.recordclass = rClass;
@@ -71,7 +71,7 @@ public class DnsRR {
 		}
 	
 	// Function to make an instance of record (typeA)
-	public DnsRR( int rType, int rClass, String recData,int rTTL, String rName)
+	public RRecord( int rType, int rClass, String recData,int rTTL, String rName)
 		{
 		this.recordtype = rType;
 		this.recordclass = rClass;

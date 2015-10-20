@@ -1,21 +1,21 @@
 import java.util.BitSet;
 import java.util.Random;
 
-public class DnsPacket {
+public class Packet {
 
 //Field
 	
 	/*private byte[] data;
-	private DnsRR[] recordsInAnswer; 
-	private DnsRR[] recordsInAuthoritative;
-	private DnsRR[] recordsInAdditional;
+	private RRecord[] recordsInAnswer; 
+	private RRecord[] recordsInAuthoritative;
+	private RRecord[] recordsInAdditional;
 
 	private String domain;*/
 //christine change order:
 	// Array composed of unknown number of resource records
-	private DnsRR[] recordsInAnswer; 
-	private DnsRR[] recordsInAuthoritative;
-	private DnsRR[] recordsInAdditional;
+	private RRecord[] recordsInAnswer; 
+	private RRecord[] recordsInAuthoritative;
+	private RRecord[] recordsInAdditional;
 
 	// The domain name that the query and the response are about
 	private String domainname;
@@ -23,13 +23,13 @@ public class DnsPacket {
 	private byte[] datacontent;
 //Constructors
 
-	public DnsPacket(){
+	public Packet(){
 		//EMPTY Constructor
 	}
-/*	public DnsPacket(String domainnameName){
+/*	public Packet(String domainnameName){
 		createQuery(domainnameName);
 	}*/
-/*	public DnsPacket(byte[] b, String domainnameName){
+/*	public Packet(byte[] b, String domainnameName){
 		data = b;
 		domainname = domainnameName;
 		readRecords();
@@ -37,7 +37,7 @@ public class DnsPacket {
 //Methods
 	
 	 //!!!constructs the header data of a DNS query and sets the domainnameName to query
-	public DnsPacket(String AskedDomainName, int TYPEtemp){
+	public Packet(String AskedDomainName, int TYPEtemp){
 	//private void createQuery(String domainName){
 		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!just create all before RR section end ARCOUNT
 		//Populate header
@@ -180,12 +180,12 @@ public class DnsPacket {
 	
 /*	private void readRecords(){
 		//Alocates arrays
-		recordsInAnswer = new DnsRR[this.noAnswers()];
-		recordsInAuthoritative = new DnsRR[this.noAuthoritive()];
-		recordsInAdditional = new DnsRR[this.noAditional()];
+		recordsInAnswer = new RRecord[this.noAnswers()];
+		recordsInAuthoritative = new RRecord[this.noAuthoritive()];
+		recordsInAdditional = new RRecord[this.noAditional()];
 		*/
 		/*private void readRecords(){*/// christine replaced
-		public DnsPacket(byte[] bytesAllPacket, String AskedDomainName, long Starttime, int TriesCount){
+		public Packet(byte[] bytesAllPacket, String AskedDomainName, long Starttime, int TriesCount){
 			
 		//Christine: Create necessary of array for store 3 types of
 		// Resource records
@@ -193,9 +193,9 @@ public class DnsPacket {
 		// Store the whole byte packet into variable : data
 			this.domainname = AskedDomainName;
 			this.datacontent = bytesAllPacket;
-		this.recordsInAnswer = new DnsRR[this.numberofRRinanwers()];
-		this.recordsInAuthoritative = new DnsRR[this.numberofRRinauthor()];
-		this.recordsInAdditional = new DnsRR[this.numberofRRinadditionals()];
+		this.recordsInAnswer = new RRecord[this.numberofRRinanwers()];
+		this.recordsInAuthoritative = new RRecord[this.numberofRRinauthor()];
+		this.recordsInAdditional = new RRecord[this.numberofRRinadditionals()];
 		
 		
 		//christine try to create error code
@@ -270,8 +270,8 @@ public class DnsPacket {
 		/*int valueLength = 0;
 		int name_LengthInBytes = 0;*/// deplaced put up and put inside!
 		
-		/*System.out.println("first or send sendoack "+(int)BitMath.byteToShort(data,4));
-		System.out.println("first or send sendoack "+(int)BitMath.byteToShort(data,6));
+		/*System.out.println("first or send sendoack "+(int)Conversion.byteToShort(data,4));
+		System.out.println("first or send sendoack "+(int)Conversion.byteToShort(data,6));
 		*///by us no need
 		
 		// christine
@@ -286,7 +286,7 @@ public class DnsPacket {
 		
 		for(int i=0;i<numberofRRinanwers();i++){
 			//!!! Need to look at why
-/*			if(BitMath.rDomainNameIsRoot(data[newRecordStartIndex])){
+/*			if(Conversion.rDomainNameIsRoot(data[newRecordStartIndex])){
 				rDomainName = "<Root>";	//Set the name as root
 				name_LengthInBytes = 1;
 				System.out.println(" BINGOOOOO");
@@ -294,89 +294,89 @@ public class DnsPacket {
 				System.out.println(" BINGOOOOO22");
 				//!!!Debug to see what is going on. 
 				//System.out.println(hostnametoString(newRecordStartIndex));
-				rDomainName  = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex)); //if not then name is a pointer
+				rDomainName  = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex)); //if not then name is a pointer
 				//Ststem.our.println(rDomainName);
 				name_LengthInBytes = hostnametoStringLen(data, newRecordStartIndex);
 			}	*/
 			
 			//!!! Need to look at why
-			/*		if(BitMath.rDomainNameIsRoot(data[curPos])){
+			/*		if(Conversion.rDomainNameIsRoot(data[curPos])){
 						rDomainName = "<Root>";	//Set the name as root
 						nameLen = 1;
 					} else {
 						//!!!Debug to see what is going on. 
 						// christine suggest to delete the if and else
 						//System.out.println(hostnametoString(curPos));
-						rDomainName  = BitMath.addrseqtodots(hostnametoString(curPos)); //if not then name is a pointer
+						rDomainName  = Conversion.addrseqtodots(hostnametoString(curPos)); //if not then name is a pointer
 						//Ststem.our.println(rDomainName);
 						nameLen = hostnametoStringLen(data, curPos);
 					}	*///christine:namelen = name_LengthInBytes
 					
 					//christine replace root part:
-					rDomainName  = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex));
+					rDomainName  = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex));
 					name_LengthInBytes = hostnametoStringLen(datacontent, newRecordStartIndex);
 		
 		
 			//!!! Need to change the name and algorithm
 					//christinein dnsprimer is all after NAME in RR
-			rType  = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes);
-			rClass = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+2);
-			rTTL   = BitMath.byte4tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+4);
-			valueLength = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+8);
+			rType  = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes);
+			rClass = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+2);
+			rTTL   = Conversion.byte4tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+4);
+			valueLength = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+8);
 			
 			
 			//!!! christine applied to next two section if else loop copie pasted 
-			if(rType==DnsRR.TYPE_NS_RECORD){
-				ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
+			if(rType==RRecord.TYPE_NS_RECORD){
+				ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
 				
-				recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+				recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 				
 				/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 						
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 				// christine for MXrecord preference
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(IsAuthoritativeOrNot());
-			}else if(rType==DnsRR.TYPE_A_RECORD){
+			}else if(rType==RRecord.TYPE_A_RECORD){
 				ValueforA =  new byte[valueLength];
 				for(int j=0;j<valueLength;j++) 
 					{
 					ValueforA[j] = datacontent[newRecordStartIndex+name_LengthInBytes+10+j];		
 					}
 				//for(int j=0;j<valueLength;j++) ValueforA[j] = datacontent[newRecordStartIndex+name_LengthInBytes+10+j];		
-				String new_rrData = BitMath.bytesTowholeIPString(ValueforA);//christine it is moved from RNSRR constructor for A record
-				recordsInAnswer[i] = new DnsRR(rType,rClass,new_rrData,rTTL,rDomainName);
+				String new_rrData = Conversion.bytesTowholeIPString(ValueforA);//christine it is moved from RNSRR constructor for A record
+				recordsInAnswer[i] = new RRecord(rType,rClass,new_rrData,rTTL,rDomainName);
 				
 				
 				// christine
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(IsAuthoritativeOrNot());
-			} else if( rType==DnsRR.TYPE_MX_RECORD){
-				ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+12));
+			} else if( rType==RRecord.TYPE_MX_RECORD){
+				ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+12));
 				
-				recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+				recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 				
 				/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 						
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 				// christine for MXrecord preference
 				
 				// christine for MXrecord preference
-				int preference = (int)BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+10);
+				int preference = (int)Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+10);
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.print(IsAuthoritativeOrNot());
 				System.out.println("	"+ "preference:"+ preference);
 				
 			}//christine
-				else if(rType==DnsRR.TYPE_CNAME_RECORD){
+				else if(rType==RRecord.TYPE_CNAME_RECORD){
 					
-					ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
+					ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
 					
-					recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+					recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 					
 					/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 							
-					recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+					recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 					// christine for MXrecord preference
 					recordsInAnswer[i].RecordDetailsPrint();
 			
@@ -390,7 +390,7 @@ public class DnsPacket {
 					/*rrData =  new byte[valueLength];
 				for(int j=0;j<valueLength;j++) rrData[j] = data[newRecordStartIndex+name_LengthInBytes+10+j];		
 				
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,rrData);
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,rrData);
 				// christine
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(isAuthOfDomain());*///christine comment out
@@ -408,7 +408,7 @@ public class DnsPacket {
 		//Loop though all Authoritative Records
 		for(int i=0;i<numberofRRinauthor();i++){
 			//!!! Need to look at why
-			/*			if(BitMath.rDomainNameIsRoot(data[newRecordStartIndex])){
+			/*			if(Conversion.rDomainNameIsRoot(data[newRecordStartIndex])){
 							rDomainName = "<Root>";	//Set the name as root
 							name_LengthInBytes = 1;
 							System.out.println(" BINGOOOOO");
@@ -416,34 +416,34 @@ public class DnsPacket {
 							System.out.println(" BINGOOOOO22");
 							//!!!Debug to see what is going on. 
 							//System.out.println(hostnametoString(newRecordStartIndex));
-							rDomainName  = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex)); //if not then name is a pointer
+							rDomainName  = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex)); //if not then name is a pointer
 							//Ststem.our.println(rDomainName);
 							name_LengthInBytes = hostnametoStringLen(data, newRecordStartIndex);
 						}	*/
 						
 						//!!! Need to look at why
-						/*		if(BitMath.rDomainNameIsRoot(data[curPos])){
+						/*		if(Conversion.rDomainNameIsRoot(data[curPos])){
 									rDomainName = "<Root>";	//Set the name as root
 									nameLen = 1;
 								} else {
 									//!!!Debug to see what is going on. 
 									// christine suggest to delete the if and else
 									//System.out.println(hostnametoString(curPos));
-									rDomainName  = BitMath.addrseqtodots(hostnametoString(curPos)); //if not then name is a pointer
+									rDomainName  = Conversion.addrseqtodots(hostnametoString(curPos)); //if not then name is a pointer
 									//Ststem.our.println(rDomainName);
 									nameLen = hostnametoStringLen(data, curPos);
 								}	*///christine:namelen = name_LengthInBytes
 								
 								//christine replace root part:
-								rDomainName  = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex));
+								rDomainName  = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex));
 								name_LengthInBytes = hostnametoStringLen(datacontent, newRecordStartIndex);
 					
 					
 			
-			rType  = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes);
-			rClass = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+2);
-			rTTL   = BitMath.byte4tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+4);
-			valueLength = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+8);
+			rType  = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes);
+			rClass = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+2);
+			rTTL   = Conversion.byte4tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+4);
+			valueLength = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+8);
 			//!!! christine debug data length
 			
 			//BitSet set = BitSet.valueOf(new byte[]{data[3]});
@@ -457,57 +457,57 @@ public class DnsPacket {
 			//!!!NS Record || MX Record
 			//!!!NS Record || MX Record
 			//!!! christine applied to next two section if else loop copie pasted 
-			if(rType==DnsRR.TYPE_NS_RECORD){
-				ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
+			if(rType==RRecord.TYPE_NS_RECORD){
+				ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
 				
-				recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+				recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 				
 				/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 						
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 				// christine for MXrecord preference
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(IsAuthoritativeOrNot());
-			}else if(rType==DnsRR.TYPE_A_RECORD){
+			}else if(rType==RRecord.TYPE_A_RECORD){
 				
 				ValueforA =  new byte[valueLength];
 				for(int j=0;j<valueLength;j++) 
 				{
 				ValueforA[j] = datacontent[newRecordStartIndex+name_LengthInBytes+10+j];		
 				}	
-				String new_rrData = BitMath.bytesTowholeIPString(ValueforA);//christine it is moved from RNSRR constructor for A record
-				recordsInAnswer[i] = new DnsRR(rType,rClass,new_rrData,rTTL,rDomainName);
+				String new_rrData = Conversion.bytesTowholeIPString(ValueforA);//christine it is moved from RNSRR constructor for A record
+				recordsInAnswer[i] = new RRecord(rType,rClass,new_rrData,rTTL,rDomainName);
 				
 				
 				// christine
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(IsAuthoritativeOrNot());
-			} else if( rType==DnsRR.TYPE_MX_RECORD){
-				ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+12));
+			} else if( rType==RRecord.TYPE_MX_RECORD){
+				ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+12));
 				
-				recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+				recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 				
 				/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 						
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 				// christine for MXrecord preference
 				
 				// christine for MXrecord preference
-				int preference = (int)BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+10);
+				int preference = (int)Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+10);
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.print(IsAuthoritativeOrNot());
 				System.out.println("	"+ "preference:"+ preference);
 				
 			}//christine
-				else if(rType==DnsRR.TYPE_CNAME_RECORD){
+				else if(rType==RRecord.TYPE_CNAME_RECORD){
 					
-					ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
+					ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
 					
-					recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+					recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 					
 					/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 							
-					recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+					recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 					// christine for MXrecord preference
 					recordsInAnswer[i].RecordDetailsPrint();
 			
@@ -521,7 +521,7 @@ public class DnsPacket {
 					/*rrData =  new byte[valueLength];
 				for(int j=0;j<valueLength;j++) rrData[j] = data[newRecordStartIndex+name_LengthInBytes+10+j];		
 				
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,rrData);
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,rrData);
 				// christine
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(isAuthOfDomain());*///christine comment out
@@ -540,7 +540,7 @@ public class DnsPacket {
 		//Loop though all Aditional Records
 		for(int i=0;i<numberofRRinadditionals();i++){	
 			//!!! Need to look at why
-			/*			if(BitMath.rDomainNameIsRoot(data[newRecordStartIndex])){
+			/*			if(Conversion.rDomainNameIsRoot(data[newRecordStartIndex])){
 							rDomainName = "<Root>";	//Set the name as root
 							name_LengthInBytes = 1;
 							System.out.println(" BINGOOOOO");
@@ -548,88 +548,88 @@ public class DnsPacket {
 							System.out.println(" BINGOOOOO22");
 							//!!!Debug to see what is going on. 
 							//System.out.println(hostnametoString(newRecordStartIndex));
-							rDomainName  = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex)); //if not then name is a pointer
+							rDomainName  = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex)); //if not then name is a pointer
 							//Ststem.our.println(rDomainName);
 							name_LengthInBytes = hostnametoStringLen(data, newRecordStartIndex);
 						}	*/
 						
 						//!!! Need to look at why
-						/*		if(BitMath.rDomainNameIsRoot(data[curPos])){
+						/*		if(Conversion.rDomainNameIsRoot(data[curPos])){
 									rDomainName = "<Root>";	//Set the name as root
 									nameLen = 1;
 								} else {
 									//!!!Debug to see what is going on. 
 									// christine suggest to delete the if and else
 									//System.out.println(hostnametoString(curPos));
-									rDomainName  = BitMath.addrseqtodots(hostnametoString(curPos)); //if not then name is a pointer
+									rDomainName  = Conversion.addrseqtodots(hostnametoString(curPos)); //if not then name is a pointer
 									//Ststem.our.println(rDomainName);
 									nameLen = hostnametoStringLen(data, curPos);
 								}	*///christine:namelen = name_LengthInBytes
 								
 								//christine replace root part:
-								rDomainName  = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex));
+								rDomainName  = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex));
 								name_LengthInBytes = hostnametoStringLen(datacontent, newRecordStartIndex);
 					
 					
 			
-			rType  = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes);
-			rClass = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+2);
-			rTTL   = BitMath.byte4tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+4);
-			valueLength = BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+8);
+			rType  = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes);
+			rClass = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+2);
+			rTTL   = Conversion.byte4tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+4);
+			valueLength = Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+8);
 			
 			//!!!NS Record || MX Record
 			//!!! christine applied to next two section if else loop copie pasted 
-			if(rType==DnsRR.TYPE_NS_RECORD){
-				ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
+			if(rType==RRecord.TYPE_NS_RECORD){
+				ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
 				
-				recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+				recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 				
 				/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 						
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 				// christine for MXrecord preference
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(IsAuthoritativeOrNot());
-			}else if(rType==DnsRR.TYPE_A_RECORD){
+			}else if(rType==RRecord.TYPE_A_RECORD){
 				
 				ValueforA =  new byte[valueLength];// chrisine: "de re de re" is 132 345 456 321
 				for(int j=0;j<valueLength;j++) 
 				{
 				ValueforA[j] = datacontent[newRecordStartIndex+name_LengthInBytes+10+j];		
 				}
-				String new_rrData = BitMath.bytesTowholeIPString(ValueforA);//christine it is moved from RNSRR constructor for A record
-				recordsInAnswer[i] = new DnsRR(rType,rClass,new_rrData,rTTL,rDomainName);
+				String new_rrData = Conversion.bytesTowholeIPString(ValueforA);//christine it is moved from RNSRR constructor for A record
+				recordsInAnswer[i] = new RRecord(rType,rClass,new_rrData,rTTL,rDomainName);
 				
 				
 				// christine
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(IsAuthoritativeOrNot());
-			} else if( rType==DnsRR.TYPE_MX_RECORD){
-				ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+12));
+			} else if( rType==RRecord.TYPE_MX_RECORD){
+				ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+12));
 				
-				recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+				recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 				
 				/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 						
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 				// christine for MXrecord preference
 				
 				// christine for MXrecord preference
-				int preference = (int)BitMath.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+10);
+				int preference = (int)Conversion.byte2tointeger(datacontent,newRecordStartIndex+name_LengthInBytes+10);
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.print(IsAuthoritativeOrNot());
 				System.out.println("	"+ "preference:"+ preference);
 				
 			}//christine
-				else if(rType==DnsRR.TYPE_CNAME_RECORD){
+				else if(rType==RRecord.TYPE_CNAME_RECORD){
 				
-					ValuefornotA = BitMath.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
+					ValuefornotA = Conversion.addrseqtodots(hostnametoString(newRecordStartIndex+name_LengthInBytes+10));
 					
-					recordsInAnswer[i] = new DnsRR(rType,rClass,rTTL,ValuefornotA,rDomainName);
+					recordsInAnswer[i] = new RRecord(rType,rClass,rTTL,ValuefornotA,rDomainName);
 					
 					/*stData = hostnametoString(newRecordStartIndex+name_LengthInBytes+10);
 							
-					recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,stData);*/
+					recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,stData);*/
 					// christine for MXrecord preference
 					recordsInAnswer[i].RecordDetailsPrint();
 			
@@ -643,7 +643,7 @@ public class DnsPacket {
 					/*rrData =  new byte[valueLength];
 				for(int j=0;j<valueLength;j++) rrData[j] = data[newRecordStartIndex+name_LengthInBytes+10+j];		
 				
-				recordsInAnswer[i] = new DnsRR(rDomainName,rType,rClass,rTTL,rrData);
+				recordsInAnswer[i] = new RRecord(rDomainName,rType,rClass,rTTL,rrData);
 				// christine
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(isAuthOfDomain());*///christine comment out
@@ -671,22 +671,22 @@ public class DnsPacket {
 	 * Packet Return functions
 	 */  
 /*	public boolean isResponse(){
-		return BitMath.byteToBitset(data[2]).get(7);
+		return Conversion.byteToBitset(data[2]).get(7);
 	}//christinee remove
 	public boolean isTruncated(){
-		return BitMath.byteToBitset(data[2]).get(1);
+		return Conversion.byteToBitset(data[2]).get(1);
 	}*///christinee remove
 	public boolean IsAuthoritativeOrNot(){
-		return BitMath.byteToBitset(datacontent[2]).get(2);
+		return Conversion.byteToBitset(datacontent[2]).get(2);
 	}
 	/*public boolean isRecursAvail(){
-		return BitMath.byteToBitset(data[3]).get(7);
+		return Conversion.byteToBitset(data[3]).get(7);
 	}*/	//christinee remove
 /*	public boolean isError(){
-		return (BitMath.byteToBitset(data[3]).get(0) 
-			 || BitMath.byteToBitset(data[3]).get(1) 
-			 || BitMath.byteToBitset(data[3]).get(2)
-			 || BitMath.byteToBitset(data[3]).get(3));
+		return (Conversion.byteToBitset(data[3]).get(0) 
+			 || Conversion.byteToBitset(data[3]).get(1) 
+			 || Conversion.byteToBitset(data[3]).get(2)
+			 || Conversion.byteToBitset(data[3]).get(3));
 	}*/
 	//!!! This is not called by other methods
 	/**
@@ -698,7 +698,7 @@ public class DnsPacket {
 	 * 5: Refused - The name server refuses to perform the specified operation for policy reasons.
 	 **/	
 	public int RCODEreader(){
-		BitSet firstbits = BitMath.byteToBitset(datacontent[3]);
+		BitSet firstbits = Conversion.byteToBitset(datacontent[3]);
 		BitSet secondbits = new BitSet();
 		
 		secondbits.set(0, firstbits.get(0));
@@ -707,7 +707,7 @@ public class DnsPacket {
 		secondbits.set(3, firstbits.get(3));
 		
 		int rcodeInt;
-		rcodeInt = (int)BitMath.bitstobyte(secondbits);
+		rcodeInt = (int)Conversion.bitstobyte(secondbits);
 		return rcodeInt;
 	}
 	
@@ -716,15 +716,15 @@ public class DnsPacket {
 	 */  
 	public int numberofRRinanwers(){
 		//6,7                      		    
-		return (int)BitMath.byte2tointeger(datacontent,6);
+		return (int)Conversion.byte2tointeger(datacontent,6);
 	}
 	public int numberofRRinauthor(){
 		//8,9
-		return (int)BitMath.byte2tointeger(datacontent,8);
+		return (int)Conversion.byte2tointeger(datacontent,8);
 	}
 	public int numberofRRinadditionals(){
 		//10,11
-		return (int)BitMath.byte2tointeger(datacontent,10);
+		return (int)Conversion.byte2tointeger(datacontent,10);
 	}
 
 	
@@ -735,7 +735,7 @@ public class DnsPacket {
 	 * @return DNS_record The coresponding DNS record.
 	 */  
 	
-	public DnsRR GetrecordsInAuthoritative(int i){
+	public RRecord GetrecordsInAuthoritative(int i){
 		return recordsInAuthoritative[i];
 	}
 	
@@ -747,7 +747,7 @@ public class DnsPacket {
 	 * @return boolean True if the byte is a pointer to another label.
 	 */
     private boolean BoolPointer (byte b){
-    	BitSet bits = BitMath.byteToBitset(b);
+    	BitSet bits = Conversion.byteToBitset(b);
     	
     	if(bits.get(7) && bits.get(6)){
     		return true;
@@ -772,13 +772,13 @@ public class DnsPacket {
     	 */   	
     	
     	//Pads the 11s and returns new byte
-    	BitSet bits  = BitMath.byteToBitset(b[index]);
+    	BitSet bits  = Conversion.byteToBitset(b[index]);
     	bits.set(6, false); 
     	bits.set(7, false);
-    	meaning[0] = BitMath.bitstobyte(bits);
+    	meaning[0] = Conversion.bitstobyte(bits);
     	meaning[1] = b[index+1];
     	
-    	return BitMath.byte2tointeger(meaning,0);
+    	return Conversion.byte2tointeger(meaning,0);
     }
 
 	/**
