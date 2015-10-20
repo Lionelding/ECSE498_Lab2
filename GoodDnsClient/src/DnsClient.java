@@ -28,7 +28,7 @@ public class DnsClient {
 		ASKED_SERVER=a.getDnsserver();
 		MAX=a.getMaxretries();
 		TYPE= a.getType();
-		System.out.println("DnsClient sending requestQue for: "+AskedDomainName);
+		System.out.println("DnsClient sending request for: "+AskedDomainName);
 		QueryandDecoding(AskedDomainName,true, MAX,TYPE);
 		
 		//resolveDomain(args[0],true);
@@ -246,11 +246,11 @@ public class DnsClient {
 		String[] split = ipAddr.split("\\.");// 
 		 byte [] IP=new byte [4];
 		int i1,i2,i3,i4;
-		//!!!split[i]???   
+		 
 		 i1= Integer.valueOf(split[0]).intValue();
-		 i2= Integer.valueOf(split[0]).intValue();
-		 i3= Integer.valueOf(split[0]).intValue();
-		 i4= Integer.valueOf(split[0]).intValue();
+		 i2= Integer.valueOf(split[1]).intValue();
+		 i3= Integer.valueOf(split[2]).intValue();
+		 i4= Integer.valueOf(split[3]).intValue();
 		 
 		 IP[0]=  (byte) ((0xFF) & i1);
 		 IP[1]=  (byte) ((0xFF) & i2);
