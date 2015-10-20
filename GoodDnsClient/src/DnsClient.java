@@ -4,32 +4,32 @@ public class DnsClient {
 
 	
 //Field
-	private static final String NO_IP_FOUND = "";				//Value for returning no ip.
-	private static final int DEFAULT_PAK_SIZE = 1052;			//Max Packet Size
-	private static int REPLY_TIMEOUT;				//!!!Timeout after 4 sec
+	//private static final String null = "";				//Value for returning no ip.
+	private static final int DEFAULT_PACKETSIZE = 512;			//Max Packet Size
+	private static int RESET_TIMEOUT;				//!!!Timeout after 4 sec
 	private static int DEFAULT_PORT;					//Default Port is 53
-	private static String AU_ROOT_IP;	//!!!ROOT IP Adress
+	private static String ASKED_SERVER;	//!!!ROOT IP Adress
 //	private static final String AU_ROOT_IP = "8.8.8.8";
-	private static int nsCount = 1;								//Keeps track of the number of server replys it has encountered
+	private static int TriesCount = 1;								//Keeps track of the number of server replys it has encountered
     private static int MAX; 
     private static int TYPE;
 
 
 	public static void main(String args[]) throws Exception{
-		//String askfor = "www.baidu.ca";		//WORKS: +FIX_TEST+ arc.gov.au NS doe not reply, needs to try next ns (Works)
-		//String askfor = "www.plan-international.gov";
+		//String AskedDomainName = "www.baidu.ca";		//WORKS: +FIX_TEST+ arc.gov.au NS doe not reply, needs to try next ns (Works)
+		//String AskedDomainName = "www.plan-international.gov";
 
 
 		Input a=new Input(args);
 
-		REPLY_TIMEOUT=a.getTimeout();
+		RESET_TIMEOUT=a.getTimeout();
 		DEFAULT_PORT=a.getPort();
-		String askfor=a.getName();
-		AU_ROOT_IP=a.getDnsserver();
+		String AskedDomainName=a.getName();
+		ASKED_SERVER=a.getDnsserver();
 		MAX=a.getMaxretries();
 		TYPE= a.getType();
-		System.out.println("DnsClient sending request for: "+askfor);
-		resolveDomain(askfor,true, MAX,TYPE);
+		System.out.println("DnsClient sending requestQue for: "+AskedDomainName);
+		QueryandDecoding(AskedDomainName,true, MAX,TYPE);
 		
 		//resolveDomain(args[0],true);
 		//GAME OVER.. 
@@ -40,86 +40,88 @@ public class DnsClient {
 	
 	/**
 	 * This method returns a byte from a bitset.
-	 * @param askfor The domain name we are looking for.
+	 * @param AskedDomainName The domain name we are looking for.
 	 * @param printFound Sets weather it should print if the domain IP has been found.
 	 * @return String A string IP address.
 	 */  
-	private static String resolveDomain(String askfor, boolean printFound, int MAXtemp, int TYPEtemp) throws Exception{
+	private static String QueryandDecoding(String AskedDomainName, boolean printFound, int MAXtemp, int TYPEtemp) throws Exception{
 		
-		String at = AU_ROOT_IP;	//Holds the IP to ask next
-		boolean found =  false; 
-		DnsPacket response = new DnsPacket();
-		DnsPacket newResponse = new DnsPacket();
+		String AskedServer = ASKED_SERVER;	//Holds the IP to ask next
+		boolean Tries =  false; 
+		Packet Validanswer = new Packet();
+		Packet Getananswer = new Packet();
 		
 		
 		//!!!Keeps looping until a SOA is encountered, no response from all servers or hopefully it finds the IP
-		while (!found){
+		while (!Tries){
 		
 			//CHECKS FOR ERRORS : SOA, Error Codes, NULL Return (Timeout)
 			
-			newResponse = sendPak(askfor,at,TYPEtemp); 
-			long startTime = System.nanoTime();//at the beginning for store the start time in starttime
+			Getananswer = TrySendOnce(AskedDomainName,AskedServer,TYPEtemp); 
+			//long startTime = System.nanoTime();//at the beginning for store the start time in starttime
 			//christine
-		/*	if(newResponse == null)
+		/*	if(Getananswer == null)
 				{
-				System.out.println(askfor + " NOTFOUND");//christine
-				return NO_IP_FOUND;
+				System.out.println(AskedDomainName + " NOTFOUND");//christine
+				return null;
 				}*/
 				//christine
-			while(newResponse == null)
+			while(Getananswer == null)
 			{
-				newResponse = sendPak(askfor,at,TYPEtemp); 
-				if(nsCount==MAXtemp)
+				Getananswer = TrySendOnce(AskedDomainName,AskedServer,TYPEtemp); 
+				if(TriesCount==MAXtemp)
 				{
-					System.out.println("Response not received after [time] seconds "+nsCount+" retries");
+					System.out.println("NOTFOUND");
 					System.exit(0); 
+					return null;
 				}
-				return NO_IP_FOUND;
+				
 			}
 			
-			if(newResponse != null &&( newResponse.errorCode() == 1
-					|| newResponse.errorCode() == 2
-					|| newResponse.errorCode() == 3
-					|| newResponse.errorCode() == 4
-					|| newResponse.errorCode() == 5))
+			if(Getananswer != null &&( Getananswer.RCODEreader() == 1
+					|| Getananswer.RCODEreader() == 2
+					|| Getananswer.RCODEreader() == 3
+					|| Getananswer.RCODEreader() == 4
+					|| Getananswer.RCODEreader() == 5))
 				{
 				
 					
 			
-			if(newResponse != null && newResponse.noAuthoritive()>0 && (newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_NS_RECORD)&&
-					(newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_MX_RECORD)&&
-					newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_CNAME_RECORD&&
-					(newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_A_RECORD))
+			if(Getananswer != null && Getananswer.numberofRRinauthor()>0 && (Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_NS_RECORD)&&
+					(Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_MX_RECORD)&&
+					Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_CNAME_RECORD&&
+					(Getananswer.GetrecordsInAuthoritative(0).getType()!=RRecord.TYPE_A_RECORD))
 					
 				{
 				
 				//christine
-			//	System.out.println(newResponse.isError());
+			//	System.out.println(Getananswer.isError());
 				//christine
 				//!!!Tests for SOA record
-				/*if(newResponse != null && newResponse.noAuthoritive()>0){
+				/*if(Getananswer != null && Getananswer.noAuthoritive()>0){
 					System.out.println("debug");*/
-					/*if((newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_CNAME_RECORD)&&
-							(newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_NS_RECORD)&&
-							(newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_MX_RECORD)&&
-							(newResponse.getRRAuth(0).getType()!=DnsRR.TYPE_A_RECORD))
+					/*if((Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_CNAME_RECORD)&&
+							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_NS_RECORD)&&
+							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_MX_RECORD)&&
+							(Getananswer.getRRAuth(0).getType()!=RRecord.TYPE_A_RECORD))
 					{		//1st rec
 						//SOA Rec == NXDOMAIN
 */
-						if(nsCount==MAXtemp)
+						if(TriesCount==MAXtemp)
 						{
-						System.out.println("Response not received after  "+nsCount+" retries");
+						System.out.println("NOTFOUND");
 							
 						System.exit(0);//christine
 						}
 					
-						return NO_IP_FOUND;
+						return null;
 				}
 				
 					
 				}else{
-				response = newResponse;	//If not null then has answers	=> Response Changed
-			}
+					
+					Validanswer = Getananswer;	//If not null then has answers	=> Response Changed
+				}
 			
 
 			//christine debug purposeExhausts all possible cases given a valid Reply
@@ -129,38 +131,21 @@ public class DnsClient {
 			/*System.out.println(response.isResponse());*/
 			//christine debug purpose
 			//System.out.println();
-			if(response.noAnswers()==0){
+			if(Validanswer.numberofRRinanwers()==0){
 				//Gets the next IP to query. 
 				
-				if(nsCount==MAXtemp)
+				if(TriesCount==MAXtemp)
 				{
-					System.out.println("Response not received after "+nsCount+" retries");
-					return NO_IP_FOUND;//christine
+					System.out.println("NOTFOUND");
+					return null;//christine
 				}
-			//	return NO_IP_FOUND;
+			//	return null;
 			}
-			//	return NO_IP_FOUND;
+			//	return null;
 			//christine
 				//Loops though answers to find if A or CNAME
-			for(int i=0;i<response.noAnswers();i++){
-				if(response.getRRAns(i).getType()==DnsRR.TYPE_CNAME_RECORD){	//IF CNAME ANSWER
-					System.out.println("Response received after " + (System.nanoTime() - startTime)/Math.pow(10, 9) + " seconds "+nsCount+" retries");
-					
-					System.out.print("CNAME for " + askfor);
-				
-					//Gets CNAME	
-					askfor = response.getRRAns(i).getStringData();
-					
-					System.out.println(" is " + askfor);
-				} else if(response.getRRAns(i).getType()==DnsRR.TYPE_A_RECORD){	//If Type A (IP) Answer 
-					//IP FOUND!!! WHOOO RAHHH!!!
-					System.out.println("Response received after " + (System.nanoTime() - startTime)/Math.pow(10, 9) + " seconds "+nsCount+" retries");
-					
-					
-					if(printFound) System.out.println(askfor + " = " + response.getRRAns(i).getStringData());
-										
-					return response.getRRAns(i).getStringData(); //RETURN IP FOUND
-				}
+			for(int i=0;i<Validanswer.numberofRRinanwers();i++){			
+					return null; 				
 			}
 			
 		
@@ -171,7 +156,7 @@ public class DnsClient {
 				
 			
 		}
-		return NO_IP_FOUND;
+		return null;
 	}
 		//If this point is reached no IP was resolved. CASE: All servers timed out (Highly Unlikley)
 	
@@ -181,17 +166,17 @@ public class DnsClient {
 	/**
 	 * This method searches though a response packet and attempts to find a NS Auth IP for the question inside the packet.
 	 * If it cannot find one it will attempt to resolve an NS which did not get provided with additional information (IP)
-	 * If it cannot resolve the NS it will return NO_IP_FOUND.
+	 * If it cannot resolve the NS it will return null.
 	 * @param response A dns_packet which holds the response.
 	 * @return String A string IP adress.
 	 */  
-	/*private static String getNextIP(DnsPacket response) throws Exception{
-		String out = NO_IP_FOUND;
+	/*private static String getNextIP(Packet response) throws Exception{
+		String out = null;
 		
 		//Scans for Type A records (Makes sure it only returns valid IPs which have not been tried)
 		for(int i=0;i<response.noAditional();i++){
 			if(!response.getRRAdd(i).isTried() 
-			 && response.getRRAdd(i).getType() == DnsRR.TYPE_A_RECORD){	//TYPE A REC not tried
+			 && response.getRRAdd(i).getType() == RRecord.TYPE_A_RECORD){	//TYPE A REC not tried
 				out = response.getRRAdd(i).getStringData(); 	//Gets the IP
 				response.getRRAdd(i).setTried();				//Sets the IP as used
 				
@@ -200,13 +185,13 @@ public class DnsClient {
 		}
 		
 		//If no ip found it recursivly calls resolveDomain to get the IP of unsolved NS for next query.
-		if (out==NO_IP_FOUND && response.noAuthoritive() > 0){
-			//If out is NO_IP_FOUND => no A records, try solve NS in Auth Section
+		if (out==null && response.noAuthoritive() > 0){
+			//If out is null => no A records, try solve NS in Auth Section
 			for(int i=0;i<response.noAuthoritive();i++){
 				out = resolveDomain(response.getRRAuth(i).getStringData(),false);	
 			
 				//If NS is succesfully resolved then return NS Ip to original resolve thread
-				if(out != NO_IP_FOUND) return out;	
+				if(out != null) return out;	
 			}
 		}
 		
@@ -216,7 +201,7 @@ public class DnsClient {
 	
 		//CASE: All servers queried recursivly did not respond. No SOA, No error. ALL TimeOut (HIGHLY UNLIKLY)
 		System.out.println("All servers timed out. Domain could not be solved.");
-		return NO_IP_FOUND;
+		return null;
 	}//christine suggeat remove
 	
 	
@@ -237,9 +222,22 @@ public class DnsClient {
 	 * @param ipAddr The IP adress to send query.
 	 * @return DNS_packet A dns packet reply.
 	 */	
-	private static DnsPacket sendPak(String domainName, String ipAddr,int TYPEtemp) throws Exception{
+	private static Packet TrySendOnce(String AskedDomainName, String ipAddr,int TYPEtemp) throws Exception{
 		//christine: for requirements in slides
+		long startTime = System.nanoTime();
 		System.out.println("Server:  " + ipAddr);
+		if (TYPEtemp == 1)
+		{
+			System.out.println("Request type: A");	
+		}else if(TYPEtemp == 2)
+		{
+			System.out.println("Request type: NS");
+		}
+		else if(TYPEtemp == 15)
+		{
+			System.out.println("Request type: MX");
+		}
+		
 		//UDP Socket Open
 		DatagramSocket clientSocket = new DatagramSocket();
 		
@@ -260,20 +258,20 @@ public class DnsClient {
 		 IP[3]=  (byte) ((0xFF) & i4);
 		 
 		InetAddress IPAddress = InetAddress.getByAddress(IP);
-		DnsPacket out = new DnsPacket(domainName,TYPEtemp);
-		DatagramPacket sendPacket = new DatagramPacket(out.packet(), out.packet().length, IPAddress, DEFAULT_PORT);  //!!! 53 is the default port
-		clientSocket.send(sendPacket);
+		Packet outpacket = new Packet(AskedDomainName,TYPEtemp);
+		DatagramPacket PackettoSend = new DatagramPacket(outpacket.Getwholedata(), outpacket.Getwholedata().length, IPAddress, DEFAULT_PORT);  //!!! 53 is the default port
+		clientSocket.send(PackettoSend);
 		// christine try get byaddress
 		
 		
 
 	
 		//Receives DNS packet
-		byte[] receiveData = new byte[DEFAULT_PAK_SIZE];			//!!! 1024 and 512? 
-		clientSocket.setSoTimeout(REPLY_TIMEOUT);	//!!! Should be a variable. If no data arrives within certain time period, throw it in the exception 
-		DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+		byte[] receiveData = new byte[DEFAULT_PACKETSIZE];			//!!! 1024 and 512? 
+		clientSocket.setSoTimeout(RESET_TIMEOUT);	//!!! Should be a variable. If no data arrives within certain time period, throw it in the exception 
+		DatagramPacket receivePackettoReceive = new DatagramPacket(receiveData, receiveData.length);
 		try{	//Try receive the data
-			clientSocket.receive(receivePacket);
+			clientSocket.receive(receivePackettoReceive);
 		/*}catch(InterruptedIOException iioexception){		
 			clientSocket.close();
 			return null;	//Timeout
@@ -281,25 +279,25 @@ public class DnsClient {
 		//Timeout
 		}catch (SocketTimeoutException s) {
 			
-		
+			TriesCount++;
 			clientSocket.close();
 			return null;
 		}
 				
 		
         
-		DnsPacket in = new DnsPacket(receiveData, domainName);
+		Packet inPacket = new Packet(receiveData, AskedDomainName, startTime, TriesCount);
 		
 		
 		//!!!Prints only if it receives a reply
 		/*System.out.println("Name server " + nsCount + ": " + ipAddr);*///change to top
-		nsCount++;
+		TriesCount++;
 		
 		
 		//UDP Socket Close
 		clientSocket.close();
 		
-		return in;
+		return inPacket;
 	}
 
 	
