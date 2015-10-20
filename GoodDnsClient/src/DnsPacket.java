@@ -338,7 +338,6 @@ public class DnsPacket {
 				recordsInAnswer[i].RecordDetailsPrint();
 				System.out.println(IsAuthoritativeOrNot());
 			}else if(rType==DnsRR.TYPE_A_RECORD){
-				System.out.println(valueLength);
 				ValueforA =  new byte[valueLength];
 				for(int j=0;j<valueLength;j++) 
 					{
