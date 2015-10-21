@@ -3,10 +3,10 @@ public class Input {
 
 	public String[] temp;
 	public int timeout=4000; 	//Timeout after 4 sec
-	public int maxretries = 3;
+	public int maxretries = 3;	//Default max try is 3
 	public int port=53;			//Default Port is 53;
 	public String Dnsserver;
-	public int type=1;
+	public int type=1;			//Default type is A
 	public String askfor;
 	
 	
@@ -14,7 +14,7 @@ public class Input {
 		this.temp= args;
 		parse();
 	}
-	
+	//Parse the input from the user
 	public void parse(){
 		for(int i=0;i<temp.length;i++){
 			if (temp[i].contains("@")){
@@ -65,15 +65,5 @@ public class Input {
 		//System.out.println(type);
 		return type;
 	}
-	
-	public void output(){
-		System.out.println("DnsClient sending request for " + this.getName()+'\n');
-		System.out.println("Server: "+'\n');
-		System.out.println("Request type: " + type +'\n');
-		System.out.println("Response received after "+"seconds ("+"retries)");  //!!!
-		System.out.println("***Answer Section ( "+" records)***"); 
-		System.out.println("IP"+'\t');
-		
-		
-	}
+
 }
